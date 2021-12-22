@@ -1,5 +1,6 @@
 package com.example.donation10;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -74,14 +75,15 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId())
         {
             case R.id.menuReport:
-                Toast toast = Toast.makeText(this, "Report Selected",
-                        Toast.LENGTH_SHORT);
-                toast.show();
+                startActivity (new Intent(this, Report.class));
                 break;
             case R.id.action_settings:
                 Toast toast_setting = Toast.makeText(this, "Setting Selected",
                         Toast.LENGTH_SHORT);
                 toast_setting.show();
+                break;
+            case R.id.menuDonate:
+                startActivity (new Intent(this, MainActivity.class));
                 break;
         }
         return super.onOptionsItemSelected(item);
