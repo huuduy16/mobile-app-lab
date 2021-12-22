@@ -14,10 +14,16 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.NumberPicker;
+import android.widget.ProgressBar;
+import android.widget.RadioGroup;
 
 public class MainActivity extends AppCompatActivity {
 
     private Button donateButton;
+    private RadioGroup paymentMethod;
+    private ProgressBar progressBar;
+    private NumberPicker amountPicker;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,6 +44,11 @@ public class MainActivity extends AppCompatActivity {
         {
             Log.v("Donate", "Really got the donate button");
         }
+        paymentMethod = (RadioGroup) findViewById(R.id.paymentMethod);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        amountPicker = (NumberPicker) findViewById(R.id.amountPicker);
+        amountPicker.setMinValue(0);
+        amountPicker.setMaxValue(1000);
     }
 
     @Override
@@ -60,5 +71,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+    public void donateButtonPressed (View view)
+    {
+        Log.v("Donate", "Donate Pressed!");
     }
 }
