@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.NumberPicker;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -68,10 +69,21 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
 
+
+        switch (item.getItemId())
+        {
+            case R.id.menuReport:
+                Toast toast = Toast.makeText(this, "Report Selected",
+                        Toast.LENGTH_SHORT);
+                toast.show();
+                break;
+            case R.id.action_settings:
+                Toast toast_setting = Toast.makeText(this, "Setting Selected",
+                        Toast.LENGTH_SHORT);
+                toast_setting.show();
+                break;
+        }
         return super.onOptionsItemSelected(item);
     }
     public void donateButtonPressed (View view)

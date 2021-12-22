@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Donation1.0</string>
+    <string name="app_name">Donation2.0</string>
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
@@ -14,4 +14,9 @@
     <string name="donateButton">Donate</string>
     <string name="paypal">PayPal</string>
     <string name="direct">Direct</string>
+    <string name="menuReport">Report</string>
+    <string name="amount">Amount</string>
+    <string name="total">Total so Far</string>
+
+    <string name="totalSoFar">$ Total</string>
 </resources>
