@@ -1,4 +1,4 @@
-package com.example.donation10;
+package com.example.donation10.activites;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -9,6 +9,8 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.example.donation10.R;
 
 public class Report extends AppCompatActivity {
 
@@ -57,7 +59,7 @@ public class Report extends AppCompatActivity {
                 toast_setting.show();
                 break;
             case R.id.menuDonate:
-                startActivity (new Intent(this, MainActivity.class));
+                startActivity (new Intent(this, Donate.class));
                 break;
         }
         return super.onOptionsItemSelected(item);
