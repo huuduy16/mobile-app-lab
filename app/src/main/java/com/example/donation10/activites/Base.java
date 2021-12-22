@@ -71,5 +71,7 @@ public class Base extends AppCompatActivity {
     {
         startActivity (new Intent(this, Donate.class));
     }
+    public void reset(MenuItem item) {}
+
 
 }
