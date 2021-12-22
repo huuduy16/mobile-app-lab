@@ -9,9 +9,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Donation10">
-        <activity android:name=".Report"></activity>
+        <activity android:name=".activites.Report"></activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".activites.Donate"
             android:label="@string/app_name"
             android:theme="@style/Theme.Donation10.NoActionBar">
             <intent-filter>
