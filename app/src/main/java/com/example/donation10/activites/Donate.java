@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.example.donation10.R;
+import com.example.donation10.models.Donation;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -66,48 +67,25 @@ public class Donate extends Base {
         amountTotal.setText("$0");
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-
-
-        switch (item.getItemId())
-        {
-            case R.id.menuReport:
-                startActivity (new Intent(this, Report.class));
-                break;
-            case R.id.action_settings:
-                Toast toast_setting = Toast.makeText(this, "Setting Selected",
-                        Toast.LENGTH_SHORT);
-                toast_setting.show();
-                break;
-            case R.id.menuDonate:
-                startActivity (new Intent(this, Donate.class));
-                break;
-        }
-        return super.onOptionsItemSelected(item);
-    }
     public void donateButtonPressed (View view)
     {
-        int amount = amountPicker.getValue();
-        int radioId = paymentMethod.getCheckedRadioButtonId();
-
-        String method = radioId == R.id.PayPal ? "PayPal" : "Direct";
-        totalDonated = totalDonated + amount;
-        progressBar.setProgress(totalDonated);
-        Log.v("Donate", "Donate Pressed! with amount " + amount + ", method: " +method);
-        Log.v("Donate", "Current total " + totalDonated);
+        String method = paymentMethod.getCheckedRadioButtonId() == R.id.PayPal ?
+                "PayPal" : "Direct";
+        int donatedAmount = amountPicker.getValue();
+        if (donatedAmount == 0)
+        {
+            String text = amountText.getText().toString();
+            if (!text.equals(""))
+                donatedAmount = Integer.parseInt(text);
+        }
+        if (donatedAmount > 0)
+        {
+            newDonation(new Donation(donatedAmount, method));
+            progressBar.setProgress(totalDonated);
+            String totalDonatedStr = "$" + totalDonated;
+            amountTotal.setText(totalDonatedStr);
+        }
     }
+
 }
