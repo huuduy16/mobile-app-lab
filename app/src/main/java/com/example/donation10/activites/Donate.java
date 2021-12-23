@@ -54,8 +54,7 @@ public class Donate extends Base {
             }
         });
         donateButton = (Button) findViewById(R.id.donateButton);
-        if (donateButton != null)
-        {
+        if (donateButton != null) {
             Log.v("Donate", "Really got the donate button");
         }
         paymentMethod = (RadioGroup) findViewById(R.id.paymentMethod);
@@ -75,36 +74,38 @@ public class Donate extends Base {
         boolean targetAchieved = app.totalDonated > app.target;
         return targetAchieved;
     }
+
     public void donateButtonPressed(View view) {
-        String method = paymentMethod.getCheckedRadioButtonId() == R.id.PayPal ?
-                "PayPal" : "Direct";
+        String method = paymentMethod.getCheckedRadioButtonId() ==
+                R.id.PayPal ? "PayPal" : "Direct";
         int donatedAmount = amountPicker.getValue();
-        if (donatedAmount == 0)
-        {
+        if (donatedAmount == 0) {
             String text = amountText.getText().toString();
             if (!text.equals(""))
                 donatedAmount = Integer.parseInt(text);
         }
         if (donatedAmount > 0) {
-            if (!isTargetAchieved()) {
-                new GetAllTask(this).execute("/donations");
-
-                progressBar.setProgress(app.totalDonated);
-                String totalDonatedStr = "$" + app.totalDonated;
-                amountTotal.setText(totalDonatedStr);
-            } else
-                Toast.makeText(this, "Target Exceeded!"
-                        , Toast.LENGTH_SHORT).show();
+            app.newDonation(new Donation(donatedAmount, method, 0));
+            progressBar.setProgress(app.totalDonated);
+            String totalDonatedStr = "$" + app.totalDonated;
+            amountTotal.setText(totalDonatedStr);
         }
+    }
+
+    @Override
+    public void reset(MenuItem item) {
+        app.totalDonated = 0;
+        amountTotal.setText("$" + app.totalDonated);
     }
 
     private class GetAllTask extends AsyncTask<String, Void, List<Donation>> {
         protected ProgressDialog dialog;
         protected Context context;
-        public GetAllTask(Context context)
-        {
+
+        public GetAllTask(Context context) {
             this.context = context;
         }
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -112,18 +113,19 @@ public class Donate extends Base {
             this.dialog.setMessage("Retrieving Donations List");
             this.dialog.show();
         }
+
         @Override
         protected List<Donation> doInBackground(String... params) {
             try {
                 Log.v("donate", "Donation App Getting All Donations");
                 return (List<Donation>) DonationApi.getAll((String) params[0]);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 Log.v("donate", "ERROR : " + e);
                 e.printStackTrace();
             }
             return null;
         }
+
         @Override
         protected void onPostExecute(List<Donation> result) {
             super.onPostExecute(result);
@@ -134,12 +136,39 @@ public class Donate extends Base {
                 dialog.dismiss();
         }
     }
-    @Override
-    public void reset(MenuItem item)
-    {
-        app.donations.clear();
-        app.totalDonated = 0;
-        amountTotal.setText("$" + app.totalDonated);
+
+    private class InsertTask extends AsyncTask<Object, Void, String> {
+        protected ProgressDialog dialog;
+        protected Context context;
+
+        public InsertTask(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            this.dialog = new ProgressDialog(context, 1);
+            this.dialog.setMessage("Saving Donation....");
+            this.dialog.show();
+        }
+
+        @Override
+        protected String doInBackground(Object... params) {
+            String res = null;
+            try {
+                Log.v("donate", "Donation App Inserting");
+            } catch (Exception e) {
+                Log.v("donate", "ERROR : " + e);
+                e.printStackTrace();
+            }
+            return res;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+        }
     }
 
     @Override
@@ -148,7 +177,44 @@ public class Donate extends Base {
         new GetAllTask(this).execute("/donations");
     }
 
+    private class ResetTask extends AsyncTask<Object, Void, String> {
+        protected ProgressDialog dialog;
+        protected Context context;
+
+        public ResetTask(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            this.dialog = new ProgressDialog(context, 1);
+            this.dialog.setMessage("Deleting Donations....");
+            this.dialog.show();
+        }
+
+        @Override
+        protected String doInBackground(Object... params) {
+            String res = null;
+            try {
+                res = DonationApi.deleteAll((String) params[0]);
+            } catch (Exception e) {
+                Log.v("donate", " RESET ERROR : " + e);
+                e.printStackTrace();
+            }
+            return res;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            app.totalDonated = 0;
+            progressBar.setProgress(app.totalDonated);
+            amountTotal.setText("$" + app.totalDonated);
+            if (dialog.isShowing())
+                dialog.dismiss();
+        }
 
 
-
+    }
 }

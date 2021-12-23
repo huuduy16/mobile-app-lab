@@ -23,13 +23,14 @@ import com.example.donation10.R;
 import com.example.donation10.api.DonationApi;
 import com.example.donation10.models.Donation;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class Report extends Base {
-
+public class Report extends Base implements AdapterView.OnItemClickListener, DialogInterface.OnClickListener
+{
     ListView listView;
-    SwipeRefreshLayout mSwipeRefreshLayout;
     DonationAdapter adapter;
+    SwipeRefreshLayout mSwipeRefreshLayout;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,23 +39,51 @@ public class Report extends Base {
         mSwipeRefreshLayout = (SwipeRefreshLayout)
                 findViewById(R.id.report_swipe_refresh_layout);
         new GetAllTask(this).execute("/donations");
-        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                new GetAllTask(Report.this).execute("/donations");
+        mSwipeRefreshLayout.setOnRefreshListener(new
+                                                         SwipeRefreshLayout.OnRefreshListener() {
+                                                             @Override
+                                                             public void onRefresh() {
+                                                                 new GetAllTask(Report.this).execute("/donations");
+                                                             }
+                                                         });
+    }
+    @Override
+    public void onItemClick(AdapterView<?> arg0, View row, int pos, long id) {
+        new GetTask(this).execute("/donations", row.getTag().toString());
+    }
+
+    public void onDonationDelete(final Donation donation) {
+        String stringId = donation._id;
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Delete Donation?");
+        builder.setIcon(android.R.drawable.ic_delete);
+        builder.setMessage("Are you sure you want to Delete the \'Donation with ID\' \n [ "
+                + stringId + " ] ?");
+        builder.setCancelable(false);
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                new DeleteTask(Report.this).execute("/donations", donation._id);
+            }
+        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.cancel();
             }
         });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    @Override
+    public void onClick(DialogInterface dialogInterface, int i) {
 
     }
 
     private class GetAllTask extends AsyncTask<String, Void, List<Donation>> {
         protected ProgressDialog dialog;
         protected Context context;
-
         public GetAllTask(Context context) {
             this.context = context;
         }
-
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -62,7 +91,6 @@ public class Report extends Base {
             this.dialog.setMessage("Retrieving Donations List");
             this.dialog.show();
         }
-
         @Override
         protected List<Donation> doInBackground(String... params) {
             try {
@@ -73,20 +101,18 @@ public class Report extends Base {
             }
             return null;
         }
-
         @Override
         protected void onPostExecute(List<Donation> result) {
             super.onPostExecute(result);
             app.donations = result;
             adapter = new DonationAdapter(context, app.donations);
             listView.setAdapter(adapter);
-            listView.setOnItemClickListener((AdapterView.OnItemClickListener) Report.this);
+            listView.setOnItemClickListener(Report.this);
             mSwipeRefreshLayout.setRefreshing(false);
             if (dialog.isShowing())
                 dialog.dismiss();
         }
     }
-
     private class GetTask extends AsyncTask<String, Void, Donation> {
         protected ProgressDialog dialog;
         protected Context context;
@@ -122,7 +148,6 @@ public class Report extends Base {
                 dialog.dismiss();
         }
     }
-
     private class DeleteTask extends AsyncTask<String, Void, String> {
         protected ProgressDialog dialog;
         protected Context context;
@@ -157,66 +182,38 @@ public class Report extends Base {
                 dialog.dismiss();
         }
     }
-    public void onDonationDelete(final Donation donation) {
-        String stringId = donation._id;
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Delete Donation?");
-        builder.setIcon(android.R.drawable.ic_delete);
-        builder.setMessage("Are you sure you want to Delete the \'Donation with ID\' \n [ "
-                + stringId + " ] ?");
-        builder.setCancelable(false);
-        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                new DeleteTask(Report.this).execute("/donations", donation._id);
-            }
-        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                dialog.cancel();
-            }
-        });
-        AlertDialog alert = builder.create();
-        alert.show();
-    }
-
     class DonationAdapter extends ArrayAdapter<Donation> {
-        private final Context context;
-        public List<Donation> donations;
-
+        private Context context;
+        public List<Donation> donations = new ArrayList<>();
         public DonationAdapter(Context context, List<Donation> donations) {
             super(context, R.layout.row_donate, donations);
             this.context = context;
             this.donations = donations;
         }
-
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
             View view = inflater.inflate(R.layout.row_donate, parent, false);
             Donation donation = donations.get(position);
-//new
-            ImageView imgDelete = view.findViewById(R.id.imgDelete);
+            ImageView imgDelete = (ImageView) view.findViewById(R.id.imgDelete);
             imgDelete.setTag(donation);
             imgDelete.setOnClickListener((View.OnClickListener) Report.this);
-///
-            TextView amountView = view.findViewById(R.id.row_amount);
-            TextView methodView = view.findViewById(R.id.row_method);
-            TextView upvotesView = view.findViewById(R.id.row_upvotes);
-
+            TextView amountView = (TextView)
+                    view.findViewById(R.id.row_amount);
+            TextView methodView = (TextView)
+                    view.findViewById(R.id.row_method);
+            TextView upvotesView = (TextView)
+                    view.findViewById(R.id.row_upvotes);
             amountView.setText("" + donation.amount);
             methodView.setText(donation.paymenttype);
             upvotesView.setText("" + donation.upvotes);
-
             view.setTag(donation._id); // setting the 'row' id to the id of the donation
-
             return view;
         }
-
         @Override
         public int getCount() {
             return donations.size();
         }
     }
-
 }

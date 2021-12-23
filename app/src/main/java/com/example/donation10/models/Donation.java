@@ -17,6 +17,8 @@ public class Donation {
         this.paymenttype = "";
         this.upvotes = 0;
     }
+
+
     public String toString()
     {
         return _id + ", " + amount + ", " + paymenttype + ", " + upvotes;
