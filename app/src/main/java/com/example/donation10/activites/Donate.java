@@ -1,20 +1,21 @@
 package com.example.donation10.activites;
 
-import android.content.Intent;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import com.example.donation10.R;
+import com.example.donation10.api.DonationApi;
 import com.example.donation10.models.Donation;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.util.Log;
 import android.view.View;
 
-import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
@@ -23,6 +24,8 @@ import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.List;
 
 public class Donate extends Base {
 
@@ -68,6 +71,10 @@ public class Donate extends Base {
     }
 
 
+    private boolean isTargetAchieved() {
+        boolean targetAchieved = app.totalDonated > app.target;
+        return targetAchieved;
+    }
     public void donateButtonPressed(View view) {
         String method = paymentMethod.getCheckedRadioButtonId() == R.id.PayPal ?
                 "PayPal" : "Direct";
@@ -78,22 +85,67 @@ public class Donate extends Base {
             if (!text.equals(""))
                 donatedAmount = Integer.parseInt(text);
         }
-        if (donatedAmount > 0)
-        {
-            app.newDonation(new Donation(donatedAmount, method));
-            progressBar.setProgress(totalDonated);
-            String s = String.valueOf(totalDonated);
-            String totalDonatedStr = "$" + s;
-            amountTotal.setText(totalDonatedStr);
+        if (donatedAmount > 0) {
+            if (!isTargetAchieved()) {
+                new GetAllTask(this).execute("/donations");
+
+                progressBar.setProgress(app.totalDonated);
+                String totalDonatedStr = "$" + app.totalDonated;
+                amountTotal.setText(totalDonatedStr);
+            } else
+                Toast.makeText(this, "Target Exceeded!"
+                        , Toast.LENGTH_SHORT).show();
         }
     }
 
+    private class GetAllTask extends AsyncTask<String, Void, List<Donation>> {
+        protected ProgressDialog dialog;
+        protected Context context;
+        public GetAllTask(Context context)
+        {
+            this.context = context;
+        }
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            this.dialog = new ProgressDialog(context, 1);
+            this.dialog.setMessage("Retrieving Donations List");
+            this.dialog.show();
+        }
+        @Override
+        protected List<Donation> doInBackground(String... params) {
+            try {
+                Log.v("donate", "Donation App Getting All Donations");
+                return (List<Donation>) DonationApi.getAll((String) params[0]);
+            }
+            catch (Exception e) {
+                Log.v("donate", "ERROR : " + e);
+                e.printStackTrace();
+            }
+            return null;
+        }
+        @Override
+        protected void onPostExecute(List<Donation> result) {
+            super.onPostExecute(result);
+            //use result to calculate the totalDonated amount here
+            progressBar.setProgress(app.totalDonated);
+            amountTotal.setText("$" + app.totalDonated);
+            if (dialog.isShowing())
+                dialog.dismiss();
+        }
+    }
     @Override
     public void reset(MenuItem item)
     {
-        app.dbManager.reset();
+        app.donations.clear();
         app.totalDonated = 0;
         amountTotal.setText("$" + app.totalDonated);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        new GetAllTask(this).execute("/donations");
     }
 
 
