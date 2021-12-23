@@ -30,7 +30,7 @@ public class Donate extends Base {
     private RadioGroup paymentMethod;
     private ProgressBar progressBar;
     private NumberPicker amountPicker;
-    private int totalDonated = 0;
+    private int totalDonated = 900;
 
     private EditText amountText;
     private TextView amountTotal;
@@ -68,8 +68,7 @@ public class Donate extends Base {
     }
 
 
-    public void donateButtonPressed (View view)
-    {
+    public void donateButtonPressed(View view) {
         String method = paymentMethod.getCheckedRadioButtonId() == R.id.PayPal ?
                 "PayPal" : "Direct";
         int donatedAmount = amountPicker.getValue();
@@ -81,11 +80,21 @@ public class Donate extends Base {
         }
         if (donatedAmount > 0)
         {
-            newDonation(new Donation(donatedAmount, method));
+            app.newDonation(new Donation(donatedAmount, method));
             progressBar.setProgress(totalDonated);
-            String totalDonatedStr = "$" + totalDonated;
+            String s = String.valueOf(totalDonated);
+            String totalDonatedStr = "$" + s;
             amountTotal.setText(totalDonatedStr);
         }
     }
+
+    @Override
+    public void reset(MenuItem item)
+    {
+        // Your implementation goes here
+    }
+
+
+
 
 }
