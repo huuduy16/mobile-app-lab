@@ -91,7 +91,9 @@ public class Donate extends Base {
     @Override
     public void reset(MenuItem item)
     {
-        // Your implementation goes here
+        app.dbManager.reset();
+        app.totalDonated = 0;
+        amountTotal.setText("$" + app.totalDonated);
     }
 
 
